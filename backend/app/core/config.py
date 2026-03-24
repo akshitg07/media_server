@@ -1,24 +1,38 @@
 from functools import lru_cache
-from pydantic_settings import BaseSettings
-from pydantic import field_validator
+from pydantic import AliasChoices, Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "Media Server"
-    secret_key: str = "change-me"
-    access_token_expire_minutes: int = 60 * 24
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    sqlite_url: str = "sqlite:///./data/media_server.db"
-    postgres_url: str | None = None
+    app_name: str = Field(default="Media Server", validation_alias=AliasChoices("APP_NAME", "app_name"))
+    secret_key: str = Field(default="change-me", validation_alias=AliasChoices("SECRET_KEY", "secret_key"))
+    access_token_expire_minutes: int = Field(
+        default=60 * 24,
+        validation_alias=AliasChoices("ACCESS_TOKEN_EXPIRE_MINUTES", "access_token_expire_minutes"),
+    )
 
-    media_dirs: str = "/media"
-    config_dir: str = "/config"
-    transcode_dir: str = "/transcode"
+    sqlite_url: str = Field(
+        default="sqlite:///./data/media_server.db",
+        validation_alias=AliasChoices("SQLITE_URL", "sqlite_url"),
+    )
+    postgres_url: str | None = Field(default=None, validation_alias=AliasChoices("POSTGRES_URL", "postgres_url"))
 
-    tmdb_api_key: str = ""
-    tmdb_base_url: str = "https://api.themoviedb.org/3"
+    media_dirs: str = Field(default="/media", validation_alias=AliasChoices("MEDIA_DIRS", "media_dirs"))
+    config_dir: str = Field(default="/config", validation_alias=AliasChoices("CONFIG_DIR", "config_dir"))
+    transcode_dir: str = Field(default="/transcode", validation_alias=AliasChoices("TRANSCODE_DIR", "transcode_dir"))
 
-    cors_origins: str = "http://localhost:5173,http://localhost:3000"
+    tmdb_api_key: str = Field(default="", validation_alias=AliasChoices("TMDB_API_KEY", "tmdb_api_key"))
+    tmdb_base_url: str = Field(
+        default="https://api.themoviedb.org/3",
+        validation_alias=AliasChoices("TMDB_BASE_URL", "tmdb_base_url"),
+    )
+
+    cors_origins: str = Field(
+        default="http://localhost:5173,http://localhost:3000",
+        validation_alias=AliasChoices("CORS_ORIGINS", "cors_origins"),
+    )
 
     @property
     def database_url(self) -> str:
@@ -40,10 +54,6 @@ class Settings(BaseSettings):
         if len(v) < 16:
             raise ValueError("secret_key must be at least 16 characters")
         return v
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
 
 
 @lru_cache

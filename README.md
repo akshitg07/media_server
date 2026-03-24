@@ -78,8 +78,13 @@ mkdir -p media backend/data transcode
 ```
 
 ### 2) Launch
+Use the command your host supports:
 ```bash
+# Docker Compose v2 plugin
 docker compose up --build -d
+
+# or legacy binary
+docker-compose up --build -d
 ```
 
 - Frontend: `http://localhost:5173`
@@ -111,3 +116,11 @@ This baseline defaults to software x264 transcoding. To enable NVIDIA/Intel acce
 - Put API behind reverse proxy (Nginx/Traefik) with HTTPS.
 - Set strong `SECRET_KEY`.
 - Use persistent volumes for `/app/data`, `/media`, `/transcode`.
+
+
+## Troubleshooting 500 on `/api/auth/register`
+- Ensure database path is writable by container/user (`./backend/data` mapped to `/app/data`).
+- Check backend logs: `docker logs -f media-server-api` and confirm it prints `Auth hash backend: pbkdf2_sha256 (internal)`.
+- Rebuild after dependency updates: `docker compose build --no-cache backend && docker compose up -d`.
+- This project now uses built-in PBKDF2 password hashing (no bcrypt/passlib runtime dependency), so stale cached images can still show old bcrypt errors until rebuilt.
+- If your database file is corrupted during early tests, stop stack and remove `backend/data/media_server.db` to reinitialize.
