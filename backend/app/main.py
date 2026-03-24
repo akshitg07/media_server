@@ -36,9 +36,16 @@ async def unhandled_exception_handler(_: Request, exc: Exception):
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 
+
+
+@app.get("/")
+def root():
+    return {"message": "Media Server API", "health": "/health", "docs": "/docs"}
+
+
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status": "ok", "hash_backend": "pbkdf2_sha256"}
 
 
 app.include_router(auth.router, prefix="/api")

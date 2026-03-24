@@ -123,4 +123,18 @@ This baseline defaults to software x264 transcoding. To enable NVIDIA/Intel acce
 - Check backend logs: `docker logs -f media-server-api` and confirm it prints `Auth hash backend: pbkdf2_sha256 (internal)`.
 - Rebuild after dependency updates: `docker compose build --no-cache backend && docker compose up -d`.
 - This project now uses built-in PBKDF2 password hashing (no bcrypt/passlib runtime dependency), so stale cached images can still show old bcrypt errors until rebuilt.
+- Verify running container code has no passlib reference: `docker exec media-server-api sh -lc "python - <<'PY'
+import inspect
+import app.services.auth as a
+print("pwd_context" in inspect.getsource(a))
+PY"` (should print `False`).
+- Check health payload includes `hash_backend: pbkdf2_sha256`: `curl http://localhost:8000/health`.
 - If your database file is corrupted during early tests, stop stack and remove `backend/data/media_server.db` to reinitialize.
+
+
+### Rebuild backend safely (recommended if auth errors persist)
+```bash
+./scripts/redeploy_backend.sh
+```
+
+Backend root now returns a small API landing payload; primary API routes remain under `/api` and health is `/health`.
