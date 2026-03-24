@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import auth, libraries, media, stream
+from app.api import libraries, media, stream
 from app.core.config import get_settings
 from app.db.session import Base, engine
 
@@ -48,7 +48,6 @@ def health():
     return {"status": "ok", "hash_backend": "pbkdf2_sha256"}
 
 
-app.include_router(auth.router, prefix="/api")
 app.include_router(libraries.router, prefix="/api")
 app.include_router(media.router, prefix="/api")
 app.include_router(stream.router, prefix="/api")
