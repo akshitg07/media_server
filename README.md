@@ -119,3 +119,5 @@ This baseline defaults to software x264 transcoding. To enable NVIDIA/Intel acce
 ```
 
 Backend root now returns a small API landing payload; primary API routes remain under `/api` and health is `/health`.
+
+If you still see an old login page after redeploy, run `./scripts/redeploy_backend.sh` and do a hard refresh in browser (`Ctrl+Shift+R`) to clear cached frontend assets.

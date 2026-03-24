@@ -8,8 +8,9 @@ fi
 
 echo "Using compose command: ${COMPOSE_CMD}"
 ${COMPOSE_CMD} down
-${COMPOSE_CMD} build --no-cache backend
+${COMPOSE_CMD} build --no-cache backend frontend
 ${COMPOSE_CMD} up -d --force-recreate backend frontend
 
-echo "Backend image/container rebuilt."
-echo "Check logs: ${COMPOSE_CMD} logs -f backend || docker logs -f media-server-api"
+echo "Backend + frontend images/containers rebuilt."
+echo "Check backend logs: docker logs -f media-server-api"
+echo "Check frontend logs: docker logs -f media-server-ui"
